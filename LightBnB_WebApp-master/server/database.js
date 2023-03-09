@@ -142,6 +142,23 @@ exports.getAllReservations = getAllReservations;
  */
 const getAllProperties = function(options, limit = 10) {
    
+// helper function for constructing the query search
+const queryBuilder = function(queryParams, options) {
+  let emptyQueryHolder = '';
+
+  if (options.city) {
+    queryParams.push(`%${options.city}%`);
+    emptyQueryHolder += `AND city LIKE $${queryParams.length} `;
+  }
+  return emptyQueryHolder;
+}
+
+// helper function for the query LIMIT
+const limitQuery = function(queryParams, limit) {
+  queryParams.push(limit);
+  return `LIMIT $${queryParams.length}`;
+}
+
   // Setup an array to hold any parameters that may be available for the query.
    const queryParams = [];
    // Start the query with all information that comes before the WHERE clause.
@@ -150,13 +167,21 @@ const getAllProperties = function(options, limit = 10) {
    FROM properties
    JOIN property_reviews ON properties.id = property_id
    `;
- 
+   queryString += queryBuilder(queryParams, options);
+   queryString += `
+   GROUP BY properties.id
+   ORDER BY cost_per_night
+   `;
+   queryString += limitQuery(queryParams, limit);
+
+
    // Check if a city has been passed in as an option. Add the city to the params array and create a WHERE clause for the city.
-   if (options.city) {
+   /* if (options.city) {
      queryParams.push(`%${options.city}%`);
      queryString += `WHERE city LIKE $${queryParams.length} `;
    }
- 
+
+
    // Add any query that comes after the WHERE clause.
    queryParams.push(limit);
    queryString += `
@@ -164,7 +189,7 @@ const getAllProperties = function(options, limit = 10) {
    ORDER BY cost_per_night
    LIMIT $${queryParams.length};
    `;
- 
+ */
    // Console log everything just to make sure we've done it right.
    console.log(queryString, queryParams);
  

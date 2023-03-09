@@ -165,6 +165,11 @@ const queryBuilder = function(queryParams, options) {
     queryParams.push(options.minimum_rating);
     emptyQueryHolder += `AND property_reviews.rating >= $${queryParams.length} `;
   }
+
+  if (!emptyQueryHolder.endsWith('WHERE ')) {
+    emptyQueryHolder = 'WHERE 1=1 ' + emptyQueryHolder;
+  }
+
   return emptyQueryHolder;
 }
 

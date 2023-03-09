@@ -17,18 +17,30 @@ const pool = new Pool({
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function(email) {
-  let user;
-  for (const userId in users) {
-    user = users[userId];
-    if (user.email.toLowerCase() === email.toLowerCase()) {
-      break;
-    } else {
-      user = null;
-    }
-  }
-  return Promise.resolve(user);
-}
+  // Use pool.query to execute the query and return a Promise that resolves with the user object
+  return pool.query(`
+    SELECT *
+    FROM users
+    WHERE LOWER(email) = $1
+    LIMIT 1;
+  `, [email.toLowerCase()])
+    .then((result) => {
+      // If a user is found, return the user object
+      if (result.rows.length > 0) {
+        return result.rows[0];
+      } 
+      // If no user is found, return null
+      else {
+        return null;
+      }
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+};
+
 exports.getUserWithEmail = getUserWithEmail;
+
 
 /**
  * Get a single user from the database given their id.

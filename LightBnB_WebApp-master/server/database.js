@@ -161,6 +161,10 @@ const queryBuilder = function(queryParams, options) {
     emptyQueryHolder += `AND cost_per_night <=  $${queryParams.length} `;
   }
 
+  if (options.minimum_rating) {
+    queryParams.push(options.minimum_rating);
+    emptyQueryHolder += `AND property_reviews.rating >= $${queryParams.length} `;
+  }
   return emptyQueryHolder;
 }
 

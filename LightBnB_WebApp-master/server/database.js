@@ -150,6 +150,17 @@ const queryBuilder = function(queryParams, options) {
     queryParams.push(`%${options.city}%`);
     emptyQueryHolder += `AND city LIKE $${queryParams.length} `;
   }
+
+  if (options.minimum_price_per_night) {
+    queryParams.push(options.minimum_price_per_night * 100);
+    emptyQueryHolder += `AND cost_per_night >= $${queryParams.length} `;
+  }
+
+  if (options.maximum_price_per_night) {
+    queryParams.push(options.maximum_price_per_night * 100);
+    emptyQueryHolder += `AND cost_per_night <=  $${queryParams.length} `;
+  }
+
   return emptyQueryHolder;
 }
 
